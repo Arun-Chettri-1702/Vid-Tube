@@ -63,7 +63,6 @@ const userSchema = new Schema(
 
 // pre hook
 userSchema.pre("save", async function (next) {
-
     //fixed in registration video
     if (!this.isModified("password")) return next(); // if password is not being modified then don't encrypt the password again
 
@@ -97,7 +96,7 @@ userSchema.methods.generateRefreshToken = function () {
 
     return jwt.sign(
         {
-            _id: this._id,
+            _id: this._id, // _id is the unique way to find our user in database can be accessed through decoded token
             email: this.email,
             username: this.username,
             fullname: this.fullName,
