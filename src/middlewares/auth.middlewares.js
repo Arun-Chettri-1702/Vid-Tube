@@ -1,3 +1,4 @@
+// to find who is logged in
 // to fetch which user is hitting the logout and extracting it's id and modify the request and forward it to the controller using next
 // using access token
 // token can be sent through header---->>header---Bearer TokenNo
@@ -39,7 +40,7 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
 
         req.user = user; //creating a new parameter as user in the req
 
-        next();   //this next will transefer this req to the controller
+        next(); //this next will transefer this req to the controller
     } catch (error) {
         throw new ApiError(401, error?.message || "Invalid Access Token");
     }
