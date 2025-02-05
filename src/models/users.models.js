@@ -14,6 +14,8 @@ dotenv.config({
 const userSchema = new Schema(
     {
         // mongoDB automatically add a feild called _id
+
+        // username is channel name and vice versa
         username: {
             type: String,
             required: true,

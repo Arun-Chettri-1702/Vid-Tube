@@ -8,6 +8,7 @@ import {
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 
 dotenv.config({
     path: "./.env",
@@ -429,6 +430,150 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, user, "cover Image successfully updated"));
 });
 
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+    //if we collect all the channels on my database to get subscribers
+    const { username } = req.params; //gets username from url i.e channel who's info i'm searching
+    if (!username) {
+        //if username is  not in the url then their data should not be accessed
+        throw new ApiError(400, "Username is required");
+    }
+
+    const channel = await User.aggregate([
+        //pipeline 1
+        {
+            $match: {
+                username: username?.toLowerCase(),
+            },
+        },
+        //pipeline 2
+        {
+            $lookup: {
+                from: "Subscription",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers",
+            },
+        },
+        //pipeline 3
+        {
+            $lookup: {
+                from: "Subscription",
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribedTo",
+            },
+        },
+        //pipeline 4  --> presenting the info
+        {
+            $addFields: {
+                SubscribersCount: {
+                    $size: "$subscribers",
+                },
+                channelsSubscribedToCount: {
+                    $size: "$subscribedTo",
+                },
+
+                //check if the user who is sending the request is subscribed to that channel which was in req.params and deconstructed ot username
+                isSubscribed: {
+                    $cond: {
+                        if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+                        then: true,
+                        else: false,
+                    },
+                },
+            },
+        },
+
+        //pipeline 5
+        {
+            // project only the necessary data
+            $project: {
+                fullName: 1,
+                username: 1,
+                avatar: 1,
+                coverImage: 1,
+                SubscribersCount: 1,
+                channelsSubscribedToCount: 1,
+                isSubscribed: 1,
+            },
+        },
+    ]);
+
+    if (!channel?.length) {
+        throw new ApiError(404, "Channel not found");
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                channel[0],
+                "Channel profile fetched successfully"
+            )
+        );
+});
+const getWatchHistory = asyncHandler(async (req, res) => {
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user?._id),
+            },
+        },
+        {
+            $lookup: {
+                from: "Video",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+
+                // for a video I'm checking the owner who is a User and getting his info
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "User",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "ownerOfVideo",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1,
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                    {
+                        $addFields: {
+                            owner: {
+                                $first: "$owner",
+                            },
+                        },
+                    },
+                ],
+            },
+        },
+        {},
+    ]);
+
+    if (!user) {
+        throw new ApiError(400, "Watch history not found");
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                user[0]?.watchHistory,
+                "Watch history successfully fetched"
+            )
+        );
+});
+
 export {
     registerUser,
     loginUser,
@@ -439,4 +584,6 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
+    getUserChannelProfile,
+    getWatchHistory,
 };
