@@ -80,7 +80,7 @@ const registerUser = asyncHandler(async (req, res) => {
     let avatar;
     try {
         avatar = await uploadOnCloudinary(avatarLocalPath);
-        console.log("Uploaded cover Image ", avatar);
+        console.log("Uploaded avatar Image ", avatar);
     } catch (error) {
         cosole.log("Error uploading avatar Image ", error);
         throw new ApiError(400, "Failed to upload cover Image");
@@ -357,7 +357,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
-    const userAvatarLocalPath = req.file?.avatar?.[0].path;
+    const userAvatarLocalPath = req.files?.avatar?.[0].path;
 
     if (!userAvatarLocalPath) {
         throw new ApiError(404, "Avatar not uploaded");
@@ -394,7 +394,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 });
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
-    const usercoverImageLocalPath = req.file?.coverImage?.[0].path;
+    const usercoverImageLocalPath = req.files?.coverImage?.[0].path;
 
     if (!usercoverImageLocalPath) {
         throw new ApiError(404, "cover image not uploaded");
