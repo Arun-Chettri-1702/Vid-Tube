@@ -25,4 +25,4 @@ const PlaylistSchema = new Schema(
     { timestamps: true }
 );
 
-export const Playlist = mongoose.model("Playlist", PlaylistSchema);
+export const Playlist = mongoose.model("Playlist", PlaylistSchema); 

@@ -135,7 +135,6 @@ const updateVideo = asyncHandler(async (req, res) => {
                 new: true,
             }
         ).select("-isPublished");
-        await video.save({ validateBeforeSave: true });
         return res
             .status(200)
             .json(
@@ -160,6 +159,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     try {
         await Video.findByIdAndDelete(video._id);
         console.log("Video deleted successfully");
+        return res.status(200).json(new ApiResponse(200, {}, "Video Deleted"));
     } catch (error) {
         throw new ApiError(500, "Couldn't delete video ");
     }
