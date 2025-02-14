@@ -95,7 +95,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Not a valid user Id");
     }
 
-    const videos = await Like.findOne({ likedBy: LikedBy });
+    const videos = await Like.find({ likedBy: LikedBy });
 
     if (!videos) {
         throw new ApiError(400, "No liked videos");

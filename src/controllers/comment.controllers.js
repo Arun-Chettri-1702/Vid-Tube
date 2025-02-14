@@ -36,7 +36,7 @@ const addComment = asyncHandler(async (req, res) => {
             commentInstance._id
         ).select("-owner");
 
-        req.status(200).json(
+        res.status(200).json(
             new ApiResponse(200, commentUploaded, "Comment done successfully")
         );
     } catch (error) {

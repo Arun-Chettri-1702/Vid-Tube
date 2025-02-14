@@ -54,6 +54,6 @@ router
 
 // :username used since in function getUserChannelProfile req.params is destructured into username
 router.route("/c/:username").get(verifyJWT, getUserChannelProfile);
-router.route("/history").get(verfiyJWT, getWatchHistory);
+router.route("/history").get(verifyJWT, getWatchHistory);
 
 export default router;

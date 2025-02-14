@@ -282,7 +282,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     //finding which user is logged in
     const user = await User.findById(req?.user._id).select(
         "-password -refreshToken"
-    ); // req.user._id is found through the verfiyJWT middleware using accessToken
+    ); // req.user._id is found through the verifyJWT middleware using accessToken
 
     if (!user) {
         throw new ApiError(401, "User not found");

@@ -50,7 +50,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     try {
         const videoInstance = await Video.create({
             videoFile: video.url,
-            thumbnail,
+            thumbnail :thumbnail?.url || "",
             title,
             description,
             duration: video?.duration / 60,
